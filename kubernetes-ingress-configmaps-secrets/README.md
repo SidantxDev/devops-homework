@@ -24,9 +24,7 @@ data:
 ```
 
 **Screenshot:**
-```text
-![ConfigMap output](./screenshots/01-configmap.png)
-```
+![alt text](image.png)
 
 ---
 
@@ -52,10 +50,7 @@ data:
 ```
 
 **Screenshot:**
-```text
-![Secret output](./screenshots/02-secret.png)
-```
-
+![alt text](image-1.png)
 ---
 
 ## Task 3: Ingress

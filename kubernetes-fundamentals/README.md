@@ -22,9 +22,7 @@ Kustomize Version: v5.0.4-0.20230601165947-6ce0bd390ce3
 ```
 
 **Screenshot:**
-```text
-![Minikube and kubectl version check](./screenshots/01-version-check.png)
-```
+![alt text](image.png)
 
 ---
 
@@ -45,10 +43,8 @@ minikube start
 🏄  Done! kubectl is now configured to use "minikube" cluster
 ```
 
-**Screenshot:**
-```text
-![Minikube start](./screenshots/02-minikube-start.png)
-```
+![alt text](image-1.png)
+![alt text](image-2.png)
 
 ---
 
@@ -76,9 +72,8 @@ minikube   Ready    control-plane   2m    v1.30.0
 ```
 
 **Screenshot:**
-```text
-![Minikube status](./screenshots/03-minikube-status.png)
-```
+![alt text](image-3.png)
+![alt text](image-4.png)
 
 ---
 
@@ -98,9 +93,7 @@ minikube stop
 ```
 
 **Screenshot:**
-```text
-![Minikube stop](./screenshots/04-minikube-stop.png)
-```
+![alt text](image-5.png)
 
 ---
 
