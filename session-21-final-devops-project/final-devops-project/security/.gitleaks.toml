@@ -1,0 +1,12 @@
+# Secret scanning config: use all of gitleaks' built-in rules (AWS keys, GitHub tokens,
+# private keys, Slack tokens, generic API keys, ...) and only ignore known-safe paths.
+title = "s17 gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Lock files contain integrity hashes, not secrets"
+paths = [
+  '''package-lock\.json''',
+]

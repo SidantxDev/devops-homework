@@ -1,0 +1,42 @@
+# Custom SAST rules for this project (run together with the Semgrep registry rulesets)
+rules:
+  - id: no-eval
+    languages: [javascript]
+    severity: ERROR
+    message: eval() executes arbitrary code - never use it on any input
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+
+  - id: no-child-process-exec
+    languages: [javascript]
+    severity: ERROR
+    message: child_process.exec runs a shell - risk of command injection
+    pattern-either:
+      - pattern: require('child_process').exec(...)
+      - pattern: $CP.exec($CMD, ...)
+
+  - id: hardcoded-credential
+    languages: [javascript]
+    severity: ERROR
+    message: Possible hard-coded credential - load it from an environment variable or a Secret
+    patterns:
+      - pattern-either:
+          - pattern: const $KEY = "..."
+          - pattern: let $KEY = "..."
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: (?i).*(password|passwd|secret|api_?key|token).*
+
+  - id: express-without-helmet
+    languages: [javascript]
+    severity: WARNING
+    message: Express app created without helmet() security headers
+    patterns:
+      - pattern-inside: |
+          function $F(...) { ... }
+      - pattern: $APP = express()
+      - pattern-not-inside: |
+          $APP = express();
+          ...
+          $APP.use(helmet(...));

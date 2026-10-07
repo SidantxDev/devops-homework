@@ -1,0 +1,15 @@
+{{ .Values.page.title }} has been deployed!
+
+  Release:     {{ .Release.Name }} (revision {{ .Release.Revision }})
+  Namespace:   {{ .Release.Namespace }}
+  Environment: {{ .Values.environment }}
+{{- if .Values.ingress.enabled }}
+  URL:         http://{{ .Values.ingress.host }}/
+{{- else }}
+  Try:         kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "webapp.fullname" . }} 8080:{{ .Values.service.port }}
+{{- end }}
+{{- if .Values.autoscaling.enabled }}
+  Autoscaling: {{ .Values.autoscaling.minReplicas }}-{{ .Values.autoscaling.maxReplicas }} replicas at {{ .Values.autoscaling.targetCPUUtilizationPercentage }}% CPU
+{{- else }}
+  Replicas:    {{ .Values.replicaCount }}
+{{- end }}

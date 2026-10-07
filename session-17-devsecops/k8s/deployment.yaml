@@ -12,6 +12,7 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
+        runAsUser: 65532   # distroless "nonroot" user; a numeric UID is required with runAsNonRoot
         seccompProfile: {type: RuntimeDefault}
       containers:
         - name: api

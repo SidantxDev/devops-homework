@@ -23,10 +23,17 @@ Every session has its own folder with a `README.md` containing the commands, **r
 | 14 | Kubernetes Troubleshooting | [session-14-kubernetes-troubleshooting](session-14-kubernetes-troubleshooting/) |
 | 15 | Helm | [session-15-helm](session-15-helm/) |
 | 16 | CI/CD & GitHub Actions | [session-16-cicd-github-actions](session-16-cicd-github-actions/) |
+| 17 | Complete CI/CD & DevSecOps | [session-17-devsecops](session-17-devsecops/) |
+| 18 | Terraform & Infrastructure as Code | [session-18-terraform-iac](session-18-terraform-iac/) |
+| 19 | Cloud & Terraform in Action | [session-19-cloud-terraform](session-19-cloud-terraform/) |
+| 20 | Monitoring, Observability & GitOps | [session-20-monitoring-observability-gitops](session-20-monitoring-observability-gitops/) |
+| 21 | Final DevOps Project & Troubleshooting | [session-21-final-devops-project](session-21-final-devops-project/) |
 
 ## Environment
 
 - Windows 11 + Docker Desktop (Docker Engine 29.3.1)
 - Minikube v1.39.0 (docker driver), Kubernetes v1.37.0, kubectl v1.34.1
 - Helm v4.1.4
+- Terraform (hashicorp/terraform Docker image) against LocalStack (local AWS emulator)
+- GitHub Actions + GHCR for CI/CD
 - Linux commands were run in an Ubuntu 24.04 container (and on the Minikube node for `journalctl`)

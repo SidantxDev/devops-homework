@@ -1,0 +1,25 @@
+# Argo CD Application: Git is the source of truth for the Session 15 Helm chart.
+# Argo CD continuously compares the cluster with this repo and reconciles any drift.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: webapp-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SidantxDev/devops-homework.git
+    targetRevision: master
+    path: session-15-helm/03-mini-project/webapp
+    helm:
+      valueFiles:
+        - ../values-prod.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: webapp-prod
+  syncPolicy:
+    automated:
+      prune: true      # delete resources that were removed from Git
+      selfHeal: true   # undo manual changes made with kubectl
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,21 @@
+environment: prod
+replicaCount: 3
+page:
+  title: "Webapp - PROD"
+  message: "Production environment: HPA 3-6 replicas, higher limits"
+  color: "#2da44e"
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 500m
+    memory: 128Mi
+ingress:
+  enabled: true
+  host: prod.webapp.local
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 60
