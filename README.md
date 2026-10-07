@@ -22,6 +22,7 @@ Every session has its own folder with a `README.md` containing the commands, **r
 | 13 | Storage, HPA & Probes | [session-13-kubernetes-storage-hpa-probes](session-13-kubernetes-storage-hpa-probes/) |
 | 14 | Kubernetes Troubleshooting | [session-14-kubernetes-troubleshooting](session-14-kubernetes-troubleshooting/) |
 | 15 | Helm | [session-15-helm](session-15-helm/) |
+| 16 | CI/CD & GitHub Actions | [session-16-cicd-github-actions](session-16-cicd-github-actions/) |
 
 ## Environment
 
