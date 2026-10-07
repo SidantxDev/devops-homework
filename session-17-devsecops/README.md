@@ -66,4 +66,4 @@ gcr.io/distroless/nodejs24-debian13:nonroot    no HIGH/CRITICAL (fixable)
 
 **Second finding (Kubernetes):** with `runAsNonRoot: true`, the Pods failed with `CreateContainerConfigError`, because the distroless user is the **name** `nonroot` and Kubernetes can't verify a non-numeric user. **Fix:** `runAsUser: 65532`.
 
-> **Pipeline run status:** the workflow is committed, but GitHub returned `500 Internal Server Error` on push (a GitHub outage), so there is no GitHub Actions run for Session 17 yet. Push again when GitHub is back and the pipeline runs automatically. The [Session 16 pipelines](../session-16-cicd-github-actions/README.md) show the same CI/CD mechanics running successfully.
+> **Pipeline run:** the full DevSecOps workflow passed on GitHub Actions in [run #37660541259](https://github.com/SidantxDev/devops-homework/actions/runs/37660541259) (3m5s): build/test → SAST → SCA → secret scan → image scan → security gate → push to GHCR → deploy to Kubernetes.
