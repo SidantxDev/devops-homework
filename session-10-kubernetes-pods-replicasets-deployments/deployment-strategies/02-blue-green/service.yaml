@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bg-app
+spec:
+  selector:
+    app: bg-app
+    version: blue   # switch traffic by changing this to "green"
+  ports:
+    - port: 80
+      targetPort: 5678

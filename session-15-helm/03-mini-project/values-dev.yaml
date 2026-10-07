@@ -1,0 +1,9 @@
+environment: dev
+replicaCount: 1
+page:
+  title: "Webapp - DEV"
+  message: "Development environment: 1 replica, no autoscaling"
+  color: "#1f6feb"
+ingress:
+  enabled: true
+  host: dev.webapp.local

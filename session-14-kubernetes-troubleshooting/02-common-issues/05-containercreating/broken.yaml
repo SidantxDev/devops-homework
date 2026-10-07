@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: report-generator
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "cat /config/settings.ini; sleep 3600"]
+      volumeMounts:
+        - {name: config, mountPath: /config}
+  volumes:
+    - name: config
+      configMap:
+        name: report-settings   # BUG: this ConfigMap was never created

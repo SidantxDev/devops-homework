@@ -1,0 +1,86 @@
+# Mini project: a resilient web app = persistent storage + probes + autoscaling
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: web-content
+spec:
+  accessModes: [ReadWriteOnce]   # single-node Minikube: all replicas share the node
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resilient-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: resilient-web}
+  template:
+    metadata:
+      labels: {app: resilient-web}
+    spec:
+      initContainers:
+        # seed the website into the volume only the FIRST time
+        - name: seed-content
+          image: busybox:1.36
+          command: ["sh", "-c", "[ -f /content/index.html ] || echo '<h1>Resilient Web App</h1><p>Served from a PersistentVolume</p>' > /content/index.html"]
+          volumeMounts:
+            - {name: content, mountPath: /content}
+      containers:
+        - name: web
+          image: nginx:1.27-alpine
+          ports: [{containerPort: 80}]
+          resources:
+            requests: {cpu: 100m, memory: 32Mi}
+            limits: {cpu: 300m, memory: 64Mi}
+          # liveness marker lives in the container's own filesystem
+          lifecycle:
+            postStart:
+              exec:
+                command: ["sh", "-c", "touch /tmp/alive && echo ok > /usr/share/nginx/html/health/ready.html"]
+          startupProbe:          # give the app up to 30s to start before other probes run
+            httpGet: {path: /, port: 80}
+            failureThreshold: 10
+            periodSeconds: 3
+          readinessProbe:        # failing -> removed from Service endpoints (no restart)
+            httpGet: {path: /health/ready.html, port: 80}
+            periodSeconds: 3
+            failureThreshold: 1
+          livenessProbe:         # failing -> container is restarted
+            exec:
+              command: ["cat", "/tmp/alive"]
+            periodSeconds: 5
+            failureThreshold: 2
+          volumeMounts:
+            - {name: content, mountPath: /usr/share/nginx/html}
+            - {name: health, mountPath: /usr/share/nginx/html/health}   # per-Pod readiness flag
+      volumes:
+        - name: content
+          persistentVolumeClaim:
+            claimName: web-content
+        - name: health
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: resilient-web
+spec:
+  selector: {app: resilient-web}
+  ports: [{port: 80}]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: resilient-web
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: resilient-web}
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: 50}

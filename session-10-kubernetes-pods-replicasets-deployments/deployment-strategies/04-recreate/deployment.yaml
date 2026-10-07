@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recreate-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: recreate-app
+  strategy:
+    type: Recreate   # kill ALL old Pods first, then create new ones
+  template:
+    metadata:
+      labels:
+        app: recreate-app
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.26-alpine
+          ports:
+            - containerPort: 80

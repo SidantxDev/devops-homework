@@ -1,0 +1,13 @@
+# LoadBalancer: NodePort + an external IP from a cloud/load-balancer provider
+# (on Minikube the external IP is provided by `minikube tunnel`)
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+    - port: 8090
+      targetPort: 80

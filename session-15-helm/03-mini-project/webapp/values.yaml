@@ -1,0 +1,40 @@
+# ---- defaults (overridden per environment by values-dev.yaml / values-prod.yaml) ----
+environment: default
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: "1.27-alpine"
+  pullPolicy: IfNotPresent
+
+# rendered into a ConfigMap and served as the home page
+page:
+  title: "Helm Mini Project"
+  message: "Deployed with Helm"
+  color: "#555555"
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 64Mi
+
+probes:
+  enabled: true
+
+ingress:
+  enabled: false
+  className: nginx
+  host: webapp.local
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 60

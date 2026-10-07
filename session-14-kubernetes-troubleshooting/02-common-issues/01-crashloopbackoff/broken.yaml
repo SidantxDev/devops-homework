@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-api
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: payment-api}}
+  template:
+    metadata: {labels: {app: payment-api}}
+    spec:
+      containers:
+        - name: api
+          image: busybox:1.36
+          # the "app" refuses to start without DATABASE_URL
+          command: ["sh", "-c", "if [ -z \"$DATABASE_URL\" ]; then echo 'FATAL: DATABASE_URL is not set'; exit 1; fi; echo \"connected to $DATABASE_URL\"; sleep 3600"]

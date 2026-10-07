@@ -1,0 +1,4 @@
+# Revision 3 - a BAD upgrade: typo in the image tag (this version does not exist)
+replicaCount: 3
+image:
+  tag: "1.27-alpnie"

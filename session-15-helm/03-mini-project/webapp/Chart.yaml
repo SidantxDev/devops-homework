@@ -1,0 +1,8 @@
+apiVersion: v2
+name: webapp
+description: Mini project - one chart, deployed to dev and prod with different values
+type: application
+version: 1.0.0
+appVersion: "1.27"
+maintainers:
+  - name: Siddhant Singh

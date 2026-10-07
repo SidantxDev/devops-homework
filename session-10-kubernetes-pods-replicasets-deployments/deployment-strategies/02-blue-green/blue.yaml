@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-blue
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bg-app
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: bg-app
+        version: blue
+    spec:
+      containers:
+        - name: web
+          image: hashicorp/http-echo:1.0
+          args: ["-text=BLUE version (v1)"]
+          ports:
+            - containerPort: 5678

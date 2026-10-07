@@ -1,0 +1,24 @@
+services:
+  frontend:
+    image: nginx:1.27-alpine
+    container_name: homework-frontend
+    networks: [frontend-net]
+  backend:
+    image: alpine:3.20
+    container_name: homework-backend
+    command: ["sh", "-c", "apk add --no-cache curl >/dev/null && sleep infinity"]
+    # backend is the only container on 2 networks, so it can reach both sides
+    networks: [frontend-net, backend-net]
+  database:
+    image: mysql:8.4
+    container_name: homework-database
+    environment:
+      MYSQL_ROOT_PASSWORD: homework-root-password
+      MYSQL_DATABASE: homework
+    networks: [backend-net, database-net]
+networks:
+  frontend-net:
+  backend-net:
+  # internal: no internet access, only for database-side traffic
+  database-net:
+    internal: true

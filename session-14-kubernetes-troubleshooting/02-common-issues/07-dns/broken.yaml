@@ -1,0 +1,14 @@
+# client in the "default" namespace
+apiVersion: v1
+kind: Pod
+metadata:
+  name: shop-frontend
+spec:
+  containers:
+    - name: app
+      image: curlimages/curl
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: INVENTORY_URL
+          value: "http://inventory"   # BUG: short name only resolves inside the "backend" namespace
+      command: ["sh", "-c", "while true; do echo \"$(date +%T) $(curl -s -m 3 $INVENTORY_URL || echo 'ERROR: could not resolve/reach inventory')\"; sleep 5; done"]

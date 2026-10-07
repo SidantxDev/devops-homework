@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rolling-app
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: rolling-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # at most 1 extra Pod above 4 during the update
+      maxUnavailable: 1  # at most 1 Pod below 4 during the update
+  template:
+    metadata:
+      labels:
+        app: rolling-app
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.26-alpine
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 2

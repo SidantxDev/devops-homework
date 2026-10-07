@@ -1,0 +1,12 @@
+# Selects only "app", so it sends traffic to stable AND canary Pods.
+# 9 stable + 1 canary Pods = about 10% of requests go to the canary.
+apiVersion: v1
+kind: Service
+metadata:
+  name: canary-app
+spec:
+  selector:
+    app: canary-app
+  ports:
+    - port: 80
+      targetPort: 5678

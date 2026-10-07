@@ -1,0 +1,4 @@
+# Revision 1 - initial release
+replicaCount: 1
+image:
+  tag: "1.26-alpine"

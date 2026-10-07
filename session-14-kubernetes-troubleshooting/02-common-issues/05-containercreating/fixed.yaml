@@ -1,0 +1,10 @@
+# FIX: create the missing ConfigMap the Pod mounts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: report-settings
+data:
+  settings.ini: |
+    [report]
+    format=pdf
+    schedule=daily

@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: greeter-config
+data:
+  GREETING: "Hello from the greeter"
+  LISTEN_PORT: "5678"          # FIX: the port the probe and Service expect
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: greeter}}
+  template:
+    metadata: {labels: {app: greeter}}
+    spec:
+      containers:
+        - name: greeter
+          image: hashicorp/http-echo:1.0
+          envFrom:
+            - configMapRef: {name: greeter-config}
+          args: ["-text=$(GREETING)", "-listen=:$(LISTEN_PORT)"]
+          readinessProbe:
+            tcpSocket: {port: 5678}
+            periodSeconds: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeter
+spec:
+  selector: {app: greeter}
+  ports: [{port: 80, targetPort: 5678}]

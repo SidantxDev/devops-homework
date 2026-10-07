@@ -1,0 +1,12 @@
+# Requests more CPU than the node has -> scheduler cannot place it -> stays Pending
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pending-pod
+spec:
+  containers:
+    - name: app
+      image: nginx:1.27-alpine
+      resources:
+        requests:
+          cpu: "100"

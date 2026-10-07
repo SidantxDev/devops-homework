@@ -1,0 +1,29 @@
+# postStart / preStop hooks + readiness and liveness probes
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hooks-probes-pod
+spec:
+  terminationGracePeriodSeconds: 15
+  containers:
+    - name: app
+      image: nginx:1.27-alpine
+      lifecycle:
+        postStart:
+          exec:
+            command: ["sh", "-c", "echo 'postStart hook ran' > /usr/share/nginx/html/hook.txt"]
+        preStop:
+          exec:
+            command: ["sh", "-c", "nginx -s quit; sleep 3"]
+      readinessProbe:
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 3
+        periodSeconds: 3
+      livenessProbe:
+        httpGet:
+          path: /
+          port: 80
+        initialDelaySeconds: 5
+        periodSeconds: 5

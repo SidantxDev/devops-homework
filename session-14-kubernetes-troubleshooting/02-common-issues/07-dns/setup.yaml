@@ -1,0 +1,25 @@
+# backend lives in its own namespace
+apiVersion: v1
+kind: Namespace
+metadata: {name: backend}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: inventory, namespace: backend}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: inventory}}
+  template:
+    metadata: {labels: {app: inventory}}
+    spec:
+      containers:
+        - name: inventory
+          image: hashicorp/http-echo:1.0
+          args: ["-text=inventory: 42 items in stock"]
+---
+apiVersion: v1
+kind: Service
+metadata: {name: inventory, namespace: backend}
+spec:
+  selector: {app: inventory}
+  ports: [{port: 80, targetPort: 5678}]

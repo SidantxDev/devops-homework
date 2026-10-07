@@ -1,0 +1,8 @@
+# ExternalName: no selector, no Pods - just a DNS CNAME to an outside hostname
+apiVersion: v1
+kind: Service
+metadata:
+  name: external-example
+spec:
+  type: ExternalName
+  externalName: example.com

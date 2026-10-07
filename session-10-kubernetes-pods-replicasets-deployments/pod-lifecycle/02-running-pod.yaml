@@ -1,0 +1,11 @@
+# A long-running web server -> Running
+apiVersion: v1
+kind: Pod
+metadata:
+  name: running-pod
+spec:
+  containers:
+    - name: app
+      image: nginx:1.27-alpine
+      ports:
+        - containerPort: 80

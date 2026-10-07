@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: canary-app
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: canary-app
+        track: canary
+    spec:
+      containers:
+        - name: web
+          image: hashicorp/http-echo:1.0
+          args: ["-text=CANARY v2"]
+          ports:
+            - containerPort: 5678

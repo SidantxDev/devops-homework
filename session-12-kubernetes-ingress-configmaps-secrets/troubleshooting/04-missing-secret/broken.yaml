@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-broken-pod
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c", "echo connected as $DB_USER; sleep 3600"]
+      env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: database-secret   # BUG: the Secret is called db-secret
+              key: DB_USER
