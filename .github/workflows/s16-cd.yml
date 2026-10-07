@@ -89,6 +89,8 @@ jobs:
 
       - name: Smoke test inside the cluster
         run: |
-          kubectl run smoke --image=curlimages/curl --restart=Never --rm -i -- \
+          kubectl run smoke --image=curlimages/curl --restart=Never -- \
             curl -fs http://s16-cicd-demo/?name=Kubernetes
+          kubectl wait --for=jsonpath='{.status.phase}'=Succeeded pod/smoke --timeout=60s
+          kubectl logs smoke
           echo "Deployed ${{ needs.publish.outputs.image }}" >> "$GITHUB_STEP_SUMMARY"
