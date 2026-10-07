@@ -1,0 +1,85 @@
+# Session 16 - CI pipeline: every push / PR is tested, built and packaged
+name: S16 CI
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "session-16-cicd-github-actions/**"
+      - ".github/workflows/s16-*.yml"
+  pull_request:
+    paths:
+      - "session-16-cicd-github-actions/**"
+  workflow_dispatch:
+
+env:
+  APP_DIR: session-16-cicd-github-actions
+  IMAGE_NAME: s16-cicd-demo
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.APP_DIR }}/app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Test summary
+        if: always()
+        run: |
+          echo "### Unit tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "$(grep -o 'tests="[0-9]*"' test-results.xml | head -1) $(grep -o 'failures="[0-9]*"' test-results.xml | head -1)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test report (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ${{ env.APP_DIR }}/app/test-results.xml
+
+  build:
+    name: Build & smoke-test image
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg APP_VERSION=${GITHUB_SHA::7} \
+            -t $IMAGE_NAME:${GITHUB_SHA::7} \
+            $APP_DIR
+          docker images $IMAGE_NAME
+
+      - name: Smoke test the container
+        run: |
+          docker run -d --name smoke -p 3000:3000 $IMAGE_NAME:${GITHUB_SHA::7}
+          for i in $(seq 1 15); do curl -fs localhost:3000/health && break; sleep 1; done
+          echo
+          curl -fs "localhost:3000/?name=CI"
+          echo
+          test "$(curl -fs 'localhost:3000/add?a=2&b=40')" = '{"result":42}'
+          docker rm -f smoke
+
+      - name: Save image as artifact
+        run: docker save $IMAGE_NAME:${GITHUB_SHA::7} | gzip > image.tar.gz
+
+      - name: Upload image (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: image.tar.gz
+          retention-days: 3

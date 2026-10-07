@@ -1,0 +1,94 @@
+# Session 16 - CD pipeline: runs only after CI succeeds on master,
+# publishes the image to GHCR and deploys it to a Kubernetes (kind) cluster
+name: S16 CD
+
+on:
+  workflow_run:
+    workflows: ["S16 CI"]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+env:
+  APP_DIR: session-16-cicd-github-actions
+  IMAGE: ghcr.io/${{ github.repository_owner }}/s16-cicd-demo
+
+jobs:
+  publish:
+    name: Push image to GHCR
+    # only continue when CI passed (or when started by hand)
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write          # lets GITHUB_TOKEN push to ghcr.io
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - name: Checkout the commit CI tested
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Image name
+        id: meta
+        run: |
+          SHA=$(git rev-parse --short=7 HEAD)
+          IMAGE_LC=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
+          echo "image=$IMAGE_LC:$SHA" >> "$GITHUB_OUTPUT"
+          echo "latest=$IMAGE_LC:latest" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR (uses the GITHUB_TOKEN secret)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.APP_DIR }}
+          push: true
+          build-args: APP_VERSION=${{ steps.meta.outputs.sha }}
+          tags: |
+            ${{ steps.meta.outputs.image }}
+            ${{ steps.meta.outputs.latest }}
+
+  deploy:
+    name: Deploy to Kubernetes (kind)
+    needs: publish
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout the commit CI tested
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Create a Kubernetes cluster (kind)
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: staging
+
+      - name: Pull the published image and load it into the cluster
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ${{ needs.publish.outputs.image }}
+          kind load docker-image ${{ needs.publish.outputs.image }} --name staging
+
+      - name: Deploy
+        run: |
+          sed "s|IMAGE_PLACEHOLDER|${{ needs.publish.outputs.image }}|" $APP_DIR/k8s/deployment.yaml | kubectl apply -f -
+          kubectl rollout status deployment/s16-cicd-demo --timeout=120s
+          kubectl get pods -o wide
+
+      - name: Smoke test inside the cluster
+        run: |
+          kubectl run smoke --image=curlimages/curl --restart=Never --rm -i -- \
+            curl -fs http://s16-cicd-demo/?name=Kubernetes
+          echo "Deployed ${{ needs.publish.outputs.image }}" >> "$GITHUB_STEP_SUMMARY"
