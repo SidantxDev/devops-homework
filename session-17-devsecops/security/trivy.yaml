@@ -1,0 +1,12 @@
+# Trivy settings used by the SCA (filesystem) and container image scans
+severity:
+  - HIGH
+  - CRITICAL
+# only fail on vulnerabilities that actually have a fix available
+ignore-unfixed: true
+# non-zero exit code = the security gate fails the pipeline
+exit-code: 1
+scan:
+  scanners:
+    - vuln
+    - misconfig
