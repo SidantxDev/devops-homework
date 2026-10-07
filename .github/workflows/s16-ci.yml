@@ -25,10 +25,10 @@ jobs:
         working-directory: ${{ env.APP_DIR }}/app
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Set up Node.js 22
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: Upload test report (artifact)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-results
           path: ${{ env.APP_DIR }}/app/test-results.xml
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Build Docker image
         run: |
@@ -78,7 +78,7 @@ jobs:
         run: docker save $IMAGE_NAME:${GITHUB_SHA::7} | gzip > image.tar.gz
 
       - name: Upload image (artifact)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-image
           path: image.tar.gz
